@@ -71,6 +71,213 @@ Build the customization bundle and embed it in your HTML **after** your main app
 
 When the application runs, the custom greeting (`ProfessionalGreeting`) will render instead of the application default greeting.
 
+## API
+
+### `register`
+
+The `register` function takes a string identifier and returns a higher-order component which receives the default component. Note that it receives the default component as a callable SFC or class constructor, not as a JSX element.
+
+```tsx
+const CustomizableText = () => <p>Customizable text!</p>;
+
+register('customizable-text')(CustomizableText);
+```
+
+### `initRegistry`
+
+Creates a registry object. Optionally can receive an existing registry object in case more than one registry is desirable (e.g. in a testing environment, or in the demo project).
+
+**Default usage (recommended):**
+
+```tsx
+// In the main app bundle:
+window.__ANNEX_REGISTRY__ = initRegistry();
+
+ReactDOM.render(
+	// The provider already has access to the default registry
+	<AnnexContext.Provider>
+		<App />
+	</AnnexContext.Provider>,
+	document.getElementById('app')
+);
+
+// In the annex bundle:
+const { append, hide, prepend, replace } = window.__ANNEX_REGISTRY__;
+
+// Do any modifications here
+```
+
+**Advanced usage:**
+
+In this example, two instances of the app will be rendered. The first instance won't render the "welcome" component.
+
+```tsx
+const registryObject1 = { componentIndex: {} };
+const registry1 = initRegistry(registryObject1);
+
+registry1.hide('welcome');
+
+const registryObject2 = { componentIndex: {} };
+const registry2 = initRegistry(registryObject2);
+
+ReactDOM.render(
+	// Pass in our first registry object
+	<AnnexContext.Provider value={registryObject1}>
+		<App />
+	</AnnexContext.Provider>,
+	document.getElementById('appInstance1')
+);
+
+ReactDOM.render(
+	// Pass in our second registry object
+	<AnnexContext.Provider value={registryObject2}>
+		<App />
+	</AnnexContext.Provider>,
+	document.getElementById('appInstance2')
+);
+```
+
+### Registry Functions
+
+#### `replace`
+
+The `replace` function exposed by the registry object swaps out the component for a custom replacement specified in the annex bundle. The replacement component will receive the same props as the component it is replacing.
+
+```tsx
+// In the application bundle:
+import { register, initRegistry } from 'react-annex';
+
+window.__ANNEX_REGISTRY__ = initRegistry();
+
+const Addition: SFC<{ a: number; b: number }> = ({ a, b }) => (
+	<p>
+		{a} + {b} = {a + b}
+	</p>
+);
+
+const Math: SFC<{ a: number; b: number }> = register('math')(Addition);
+
+ReactDOM.render(
+	// Pass in our first registry object
+	<AnnexContext.Provider>
+		<Math a={12} b={3} />
+	</AnnexContext.Provider>,
+	document.getElementById('app')
+);
+
+// By default the application will render "12 + 3 = 15"
+
+// In the annex bundle:
+const { replace } = window.__ANNEX_REGISTRY__;
+
+const Multiplication: SFC<{ a: number; b: number }> = ({ a, b }) => (
+	<p>
+		{a} * {b} = {a * b}
+	</p>
+);
+
+replace('math', Multiplication);
+
+// Now the application will render "12 * 3 = 36"
+```
+
+#### `hide`
+
+The `hide` function exposed by the registry object removes the specified component from the app. It accepts a string which identifies a registered customizable component.
+
+```tsx
+const { hide } = window.__ANNEX_REGISTRY__;
+
+// Hide the math component for this instance
+hide('math');
+```
+
+#### `prepend`
+
+The `prepend` function exposed by the registry object inserts a component before the specified component in the app. The inserted component is inserted as a sibling to the target component. Prepended components receive the same props as the components they are inserted before.
+
+```tsx
+const { prepend } = window.__ANNEX_REGISTRY__;
+
+const MathWarning = ({ a, b }) => (
+	<p>
+		Warning: About to do math with {a} and {b}!
+	</p>
+);
+
+// Add a heading above all instances of math
+prepend('math', MathWarning);
+
+// Now the application will render:
+//
+//   Warning: About to do math with 12 and 3!
+//   12 + 3 = 15
+```
+
+#### `append`
+
+The `append` function exposed by the registry object inserts a component after the specified component in the app. The inserted component is inserted as a sibling to the target component. Appended components receive the same props as the components they are inserted after.
+
+```tsx
+const { prepend } = window.__ANNEX_REGISTRY__;
+
+const MathSummary = ({ a, b }) => (
+	<p>
+		We did math with {a} and {b}!
+	</p>
+);
+
+// Add a summary below all instances of math
+append('math', MathSummary);
+
+// Now the application will render:
+//
+//   12 + 3 = 15
+//   We did math with 12 and 3!
+```
+
+#### Advanced usage of `replace`
+
+Components provided to `replace` will receive the component they are replacing as a prop: `DefaultComponent`.
+
+The `prepend`, `append` and `hide` helpers all use `replace` internally. `replace` can be used with the `DefaultComponent` prop to make complex insertions and modifications around the default implementation while retaining its functionality:
+
+```tsx
+const { replace } = window.__ANNEX_REGISTRY__;
+
+const MathFormatter = props => {
+	const { a, b, DefaultComponent } = props;
+
+	return (
+		<>
+			<p>We're about to do math. Our numbers are:</p>
+			<ul>
+				<li>{a}</li>
+				<li>{b}</li>
+			</ul>
+			<DefaultComponent {...props} />
+			<p>
+				We did math with {a} and {b}!
+			</p>
+		</>
+	);
+};
+
+replace('math', MathFormatter);
+
+// Now the application will render:
+//
+//   We're about to do math. Our numbers are:
+//
+//   • 12
+//   • 3
+//
+//   12 + 3 = 15
+//   We did math with 12 and 3!
+```
+
+The main advantage of this approach is our customization will still work without modification, even if the implementation of the Math component changes in the main app bundle.
+
 # Development & Contribution
 
 Clone this repo to your machine and run these commands to start the `storybook` development environment:

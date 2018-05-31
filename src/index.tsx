@@ -5,7 +5,6 @@ export interface IExtensionRegistry {
 		[key: string]: React.ComponentClass | React.SFC;
 	};
 }
-
 const defaultRegistry = {
 	componentIndex: {},
 	knownExtensionPoints: {}
