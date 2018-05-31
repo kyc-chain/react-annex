@@ -1,31 +1,31 @@
-import * as React from "react";
-import { SFC } from "react";
+import * as React from 'react';
+import { SFC } from 'react';
 
-import { setAddon, storiesOf, Story } from "@storybook/react";
-import JSXAddon from "storybook-addon-jsx";
-import { withMarkdownNotes } from "@storybook/addon-notes";
+import { setAddon, storiesOf, Story } from '@storybook/react';
+import JSXAddon from 'storybook-addon-jsx';
+import { withMarkdownNotes } from '@storybook/addon-notes';
 
-import { initRegistry, AnnexContext } from "../src";
-import { Demo } from "./components/demo";
+import { initRegistry, AnnexContext } from '../src';
+import { Demo } from './components/demo';
 
 setAddon(JSXAddon);
 
 const Multiplication: SFC<{ a: number; b: number }> = ({ a, b }) => (
-  <div>
-    <h1>Multiplication</h1>
-    <p>
-      {a} * {b} = {a * b}
-    </p>
-  </div>
+	<div>
+		<h1>Multiplication</h1>
+		<p>
+			{a} * {b} = {a * b}
+		</p>
+	</div>
 );
 
-const tStory = storiesOf("Examples", module) as Story & {
-  addWithJSX: Function;
+const tStory = storiesOf('Examples', module) as Story & {
+	addWithJSX: Function;
 };
 
 tStory.addWithJSX(
-  "Default content",
-  withMarkdownNotes(`
+	'Default content',
+	withMarkdownNotes(`
 # Default Demo Content
 
 This is the demo content used in all of the following examples, without any overrides registered.
@@ -33,8 +33,8 @@ This is the demo content used in all of the following examples, without any over
 );
 
 tStory.addWithJSX(
-  "Hiding components",
-  withMarkdownNotes(`
+	'Hiding components',
+	withMarkdownNotes(`
 # Hiding Components
 The \`hide\` function exposed by the registry is helpful syntactic sugar to hide the content of any replaceable component.
 ~~~js
@@ -43,22 +43,22 @@ const { hide } = initRegistry();
 hide("math");
 ~~~
     `)(() => {
-    const registry = { componentIndex: {}, knownExtensionPoints: {} };
-    const { hide } = initRegistry(registry);
+		const registry = { componentIndex: {}, knownExtensionPoints: {} };
+		const { hide } = initRegistry(registry);
 
-    hide("math");
+		hide('math');
 
-    return (
-      <AnnexContext.Provider value={registry}>
-        <Demo />
-      </AnnexContext.Provider>
-    );
-  })
+		return (
+			<AnnexContext.Provider value={registry}>
+				<Demo />
+			</AnnexContext.Provider>
+		);
+	})
 );
 
 tStory.addWithJSX(
-  "Replacing components",
-  withMarkdownNotes(`
+	'Replacing components',
+	withMarkdownNotes(`
   # Simple Component Replacement
   Annex can replace or modify components throughout the application by registering named replacement extension points using the \`register\` higher-order component:
   ~~~js
@@ -85,24 +85,24 @@ tStory.addWithJSX(
   replace("replacement", ReplacementData);
   ~~~
   `)(() => {
-    const registry = { componentIndex: {}, knownExtensionPoints: {} };
-    const { replace } = initRegistry(registry);
+		const registry = { componentIndex: {}, knownExtensionPoints: {} };
+		const { replace } = initRegistry(registry);
 
-    const ReplacementData = () => <div>This has been replaced</div>;
+		const ReplacementData = () => <div>This has been replaced</div>;
 
-    replace("replacement", ReplacementData);
+		replace('replacement', ReplacementData);
 
-    return (
-      <AnnexContext.Provider value={registry}>
-        <Demo />
-      </AnnexContext.Provider>
-    );
-  })
+		return (
+			<AnnexContext.Provider value={registry}>
+				<Demo />
+			</AnnexContext.Provider>
+		);
+	})
 );
 
 tStory.addWithJSX(
-  "Replacing components that receive props",
-  withMarkdownNotes(`
+	'Replacing components that receive props',
+	withMarkdownNotes(`
   # Component Replacement with Props
   Components registered with a \`replace\` higher-order component will receive the same props as the component they are replacing.
   ~~~js
@@ -134,22 +134,22 @@ tStory.addWithJSX(
   replace("math", Multiplication);
   ~~~
   `)(() => {
-    const registry = { componentIndex: {}, knownExtensionPoints: {} };
-    const { replace } = initRegistry(registry);
+		const registry = { componentIndex: {}, knownExtensionPoints: {} };
+		const { replace } = initRegistry(registry);
 
-    replace("math", Multiplication);
+		replace('math', Multiplication);
 
-    return (
-      <AnnexContext.Provider value={registry}>
-        <Demo />
-      </AnnexContext.Provider>
-    );
-  })
+		return (
+			<AnnexContext.Provider value={registry}>
+				<Demo />
+			</AnnexContext.Provider>
+		);
+	})
 );
 
 tStory.addWithJSX(
-  "Appending & prepending components",
-  withMarkdownNotes(`
+	'Appending & prepending components',
+	withMarkdownNotes(`
   # Prepending Components
   The \`apppend\` and \`prepend\` functions exposed by the registry are helpers to simplify insertion of components before or after an extensible component while retaining the default content.
   ~~~js
@@ -164,21 +164,21 @@ tStory.addWithJSX(
   prepend("math", Multiplication);
   ~~~
   `)(() => {
-    const registry = { componentIndex: {}, knownExtensionPoints: {} };
-    const { append, prepend } = initRegistry(registry);
+		const registry = { componentIndex: {}, knownExtensionPoints: {} };
+		const { append, prepend } = initRegistry(registry);
 
-    append("replacement", (props: any) => (
-      <>
-        <h2>Extra Information</h2>
-        <p>This is important supplementary information.</p>
-      </>
-    ));
-    prepend("math", Multiplication);
+		append('replacement', (props: any) => (
+			<>
+				<h2>Extra Information</h2>
+				<p>This is important supplementary information.</p>
+			</>
+		));
+		prepend('math', Multiplication);
 
-    return (
-      <AnnexContext.Provider value={registry}>
-        <Demo />
-      </AnnexContext.Provider>
-    );
-  })
+		return (
+			<AnnexContext.Provider value={registry}>
+				<Demo />
+			</AnnexContext.Provider>
+		);
+	})
 );

@@ -1,1 +1,1 @@
-declare module "storybook-addon-jsx";
+declare module 'storybook-addon-jsx';

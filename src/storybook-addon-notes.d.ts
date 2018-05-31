@@ -1,1 +1,1 @@
-declare module "@storybook/addon-notes";
+declare module '@storybook/addon-notes';
