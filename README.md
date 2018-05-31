@@ -34,28 +34,28 @@ ReactDOM.render(
 );
 ```
 
-Use the `replace` HOC throughout your application wherever you decide to expose a component for customization:
+Use the `register` HOC throughout your application wherever you decide to expose a component for customization:
 
 ```tsx
 import * as React from "react";
 import { SFC } from "react";
 
-import { replace } from "react-annex";
+import { register } from "react-annex";
 
 const Greeting: SFC<{ name: string }> = ({ name }) => (
   <p>Yo {name}! What's up?</p>
 );
 
-export const CustomizableGreeting = replace("greeting")(Greeting);
+export const CustomizableGreeting = register("greeting")(Greeting);
 ```
 
-Create the customization entrypoint in a new project and get the `registry` functions from the property you attached to `window` previously in your app bundle. Use them to hide or replace you customizable components:
+Create the customization entrypoint in a new project and get the `registry` functions from the property you attached to `window` previously in your app bundle. Use them to hide, replace or extend your customizable components:
 
 ```tsx
 import * as React from "react";
 import { SFC } from "react";
 
-const { hide, register } = window.__ANNEX_REGISTRY__;
+const { replace } = window.__ANNEX_REGISTRY__;
 
 const ProfessionalGreeting: SFC<{ name: string }> = ({ name }) => (
   <p>
@@ -64,7 +64,7 @@ const ProfessionalGreeting: SFC<{ name: string }> = ({ name }) => (
   </p>
 );
 
-register("greeting", ProfessionalGreeting);
+replace("greeting", ProfessionalGreeting);
 ```
 
 Build the customization bundle and embed it in your HTML **after** your main application bundle.
@@ -79,3 +79,5 @@ Clone this repo to your machine and run these commands to start the `storybook` 
 yarn
 yarn start
 ```
+
+This repo uses [commitizen](https://commitizen.github.io/cz-cli/) to ensure clean, consistent commit messages. Please use `git cz` when committing changes.

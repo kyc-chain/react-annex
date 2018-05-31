@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SFC } from "react";
 
-import { replace } from "../../src";
+import { register } from "../../src";
 
 const ReplacementContent: SFC<{}> = () => (
   <div>
@@ -10,4 +10,4 @@ const ReplacementContent: SFC<{}> = () => (
   </div>
 );
 
-export const Replacement: SFC<{}> = replace("replacement")(ReplacementContent);
+export const Replacement: SFC<{}> = register("replacement")(ReplacementContent);

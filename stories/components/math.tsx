@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SFC } from "react";
 
-import { replace } from "../../src";
+import { register } from "../../src";
 
 const Addition: SFC<{ a: number; b: number }> = ({ a, b }) => (
   <div>
@@ -12,4 +12,4 @@ const Addition: SFC<{ a: number; b: number }> = ({ a, b }) => (
   </div>
 );
 
-export const Math: SFC<{ a: number; b: number }> = replace("math")(Addition);
+export const Math: SFC<{ a: number; b: number }> = register("math")(Addition);

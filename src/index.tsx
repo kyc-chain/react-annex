@@ -23,7 +23,7 @@ export const initRegistry = (index?: ExtensionRegistry) => {
   const selectedRegistry: ExtensionRegistry = index || defaultRegistry;
 
   const registry = {
-    register: (key: string, RegisteredComponent: ComponentClass | SFC) => {
+    replace: (key: string, RegisteredComponent: ComponentClass | SFC) => {
       if (selectedRegistry.componentIndex[key]) {
         throw new Error(
           `Component already registered for target "${key}", cannot register multiple components for the same extension point in the same extension registry.`
@@ -33,24 +33,46 @@ export const initRegistry = (index?: ExtensionRegistry) => {
       selectedRegistry.componentIndex[key] = RegisteredComponent;
     },
     hide: (key: string) => {
-      registry.register(key, Blank);
+      registry.replace(key, Blank);
+    },
+    prepend: (key: string, RegisteredComponent: ComponentClass | SFC) => {
+      registry.replace(key, (props: any) => {
+        const { DefaultContent } = props;
+        return (
+          <>
+            <RegisteredComponent {...props} />
+            <DefaultContent {...props} />
+          </>
+        );
+      });
+    },
+    append: (key: string, RegisteredComponent: ComponentClass | SFC) => {
+      registry.replace(key, (props: any) => {
+        const { DefaultContent } = props;
+        return (
+          <>
+            <DefaultContent {...props} />
+            <RegisteredComponent {...props} />
+          </>
+        );
+      });
     }
   };
 
   return registry;
 };
 
-export const replace = (key: string) => {
+export const register = (key: string) => {
   return (DefaultContent: ComponentClass | SFC) => (props: any) => (
     <AnnexContext.Consumer>
       {(registry: ExtensionRegistry) => {
-        if (registry.componentIndex[key]) {
-          const Comp = registry.componentIndex[key];
-
-          return <Comp {...props} />;
+        if (!registry.componentIndex[key]) {
+          return <DefaultContent {...props} />;
         }
 
-        return <DefaultContent {...props} />;
+        const Comp = registry.componentIndex[key];
+
+        return <Comp {...props} DefaultContent={DefaultContent} />;
       }}
     </AnnexContext.Consumer>
   );

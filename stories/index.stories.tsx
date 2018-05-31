@@ -10,6 +10,15 @@ import { Demo } from "./components/demo";
 
 setAddon(JSXAddon);
 
+const Multiplication: SFC<{ a: number; b: number }> = ({ a, b }) => (
+  <div>
+    <h1>Multiplication</h1>
+    <p>
+      {a} * {b} = {a * b}
+    </p>
+  </div>
+);
+
 const tStory = storiesOf("Examples", module) as Story & {
   addWithJSX: Function;
 };
@@ -24,15 +33,39 @@ This is the demo content used in all of the following examples, without any over
 );
 
 tStory.addWithJSX(
+  "Hiding components",
+  withMarkdownNotes(`
+# Hiding Components
+The \`hide\` function exposed by the registry is helpful syntactic sugar to hide the content of any replaceable component.
+~~~js
+const { hide } = initRegistry();
+
+hide("math");
+~~~
+    `)(() => {
+    const registry = { componentIndex: {}, knownExtensionPoints: {} };
+    const { hide } = initRegistry(registry);
+
+    hide("math");
+
+    return (
+      <AnnexContext.Provider value={registry}>
+        <Demo />
+      </AnnexContext.Provider>
+    );
+  })
+);
+
+tStory.addWithJSX(
   "Replacing components",
   withMarkdownNotes(`
   # Simple Component Replacement
-  Annex can replace components throughout the application by registering named replacement extension points using the \`replace\` higher-order component:
+  Annex can replace or modify components throughout the application by registering named replacement extension points using the \`register\` higher-order component:
   ~~~js
   import * as React from "react";
   import { SFC } from "react";
   
-  import { replace } from "../../src";
+  import { register } from "react-annex";
   
   const DefaultContent: SFC<{}> = () => (
     <div>
@@ -41,7 +74,7 @@ tStory.addWithJSX(
     </div>
   );
   
-  export const Replacement: SFC<{}> = replace("replacement")(
+  export const Replacement: SFC<{}> = register("replacement")(
     DefaultContent
   );
   ~~~
@@ -49,15 +82,15 @@ tStory.addWithJSX(
   ~~~tsx
   const ReplacementData = () => <div>This has been replaced</div>;
   
-  register("replacement", ReplacementData);
+  replace("replacement", ReplacementData);
   ~~~
   `)(() => {
     const registry = { componentIndex: {}, knownExtensionPoints: {} };
-    const { register } = initRegistry(registry);
+    const { replace } = initRegistry(registry);
 
     const ReplacementData = () => <div>This has been replaced</div>;
 
-    register("replacement", ReplacementData);
+    replace("replacement", ReplacementData);
 
     return (
       <AnnexContext.Provider value={registry}>
@@ -76,7 +109,7 @@ tStory.addWithJSX(
   import * as React from "react";
   import { SFC } from "react";
   
-  import { replace } from "../../src";
+  import { register } from "react-annex";
   
   const Addition: SFC<{a: number, b: number}> = ({a, b}) => (
     <div>
@@ -85,7 +118,7 @@ tStory.addWithJSX(
     </div>
   );
   
-  export const Math: SFC<{}> = replace("math")(
+  export const Math: SFC<{}> = register("math")(
     Addition
   );
   ~~~
@@ -98,22 +131,13 @@ tStory.addWithJSX(
       </div>
   );
   
-  register("math", Multiplication);
+  replace("math", Multiplication);
   ~~~
   `)(() => {
     const registry = { componentIndex: {}, knownExtensionPoints: {} };
-    const { register } = initRegistry(registry);
+    const { replace } = initRegistry(registry);
 
-    const Multiplication: SFC<{ a: number; b: number }> = ({ a, b }) => (
-      <div>
-        <h1>Multiplication</h1>
-        <p>
-          {a} * {b} = {a * b}
-        </p>
-      </div>
-    );
-
-    register("math", Multiplication);
+    replace("math", Multiplication);
 
     return (
       <AnnexContext.Provider value={registry}>
@@ -124,23 +148,32 @@ tStory.addWithJSX(
 );
 
 tStory.addWithJSX(
-  "Hiding components",
+  "Appending & prepending components",
   withMarkdownNotes(`
-  # Hiding Components
-  The \`hide\` function exposed by the registry is helpful syntactic sugar to hide the content of any replaceable component.
+  # Prepending Components
+  The \`apppend\` and \`prepend\` functions exposed by the registry are helpers to simplify insertion of components before or after an extensible component while retaining the default content.
   ~~~js
-  const registry = { componentIndex: {}, knownExtensionPoints: {} };
-  const { hide } = initRegistry(registry);
+  const { append, prepend } = initRegistry();
 
-  hide("math");
-  hide("replacement");
+  append("replacement", (props: any) => (
+    <>
+      <h2>Extra Information</h2>
+      <p>This is important supplementary information.</p>
+    </>
+  ));
+  prepend("math", Multiplication);
   ~~~
   `)(() => {
     const registry = { componentIndex: {}, knownExtensionPoints: {} };
-    const { hide } = initRegistry(registry);
+    const { append, prepend } = initRegistry(registry);
 
-    hide("math");
-    hide("replacement");
+    append("replacement", (props: any) => (
+      <>
+        <h2>Extra Information</h2>
+        <p>This is important supplementary information.</p>
+      </>
+    ));
+    prepend("math", Multiplication);
 
     return (
       <AnnexContext.Provider value={registry}>

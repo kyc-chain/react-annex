@@ -12,7 +12,9 @@ export declare const initRegistry: (index?: {
         [key: string]: boolean;
     };
 } | undefined) => {
-    register: (key: string, RegisteredComponent: React.StatelessComponent<{}> | React.ComponentClass<{}>) => void;
+    replace: (key: string, RegisteredComponent: React.StatelessComponent<{}> | React.ComponentClass<{}>) => void;
     hide: (key: string) => void;
+    prepend: (key: string, RegisteredComponent: React.StatelessComponent<{}> | React.ComponentClass<{}>) => void;
+    append: (key: string, RegisteredComponent: React.StatelessComponent<{}> | React.ComponentClass<{}>) => void;
 };
-export declare const replace: (key: string) => (DefaultContent: React.StatelessComponent<{}> | React.ComponentClass<{}>) => (props: any) => JSX.Element;
+export declare const register: (key: string) => (DefaultContent: React.StatelessComponent<{}> | React.ComponentClass<{}>) => (props: any) => JSX.Element;
