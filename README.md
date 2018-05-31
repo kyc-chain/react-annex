@@ -17,54 +17,54 @@ React-Annex allows you to build extension points into your application code and 
 In your application bundle you will initialize the registry and attach it to the `window` object. This is required in order for the annex file to register its customizations at runtime. You will also need to wrap your application in the AnnexContext Provider:
 
 ```tsx
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { AnnexContext, initRegistry } from "react-annex";
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import { AnnexContext, initRegistry } from 'react-annex';
 
-import { App } from "./app";
+import { App } from './app';
 
 // You may call this variable whatever you want
 window.__ANNEX_REGISTRY__ = initRegistry();
 
 ReactDOM.render(
-  <AnnexContext.Provider>
-    <App />
-  </AnnexContext.Provider>,
-  document.getElementById("app")
+	<AnnexContext.Provider>
+		<App />
+	</AnnexContext.Provider>,
+	document.getElementById('app')
 );
 ```
 
 Use the `register` HOC throughout your application wherever you decide to expose a component for customization:
 
 ```tsx
-import * as React from "react";
-import { SFC } from "react";
+import * as React from 'react';
+import { SFC } from 'react';
 
-import { register } from "react-annex";
+import { register } from 'react-annex';
 
 const Greeting: SFC<{ name: string }> = ({ name }) => (
-  <p>Yo {name}! What's up?</p>
+	<p>Yo {name}! What's up?</p>
 );
 
-export const CustomizableGreeting = register("greeting")(Greeting);
+export const CustomizableGreeting = register('greeting')(Greeting);
 ```
 
 Create the customization entrypoint in a new project and get the `registry` functions from the property you attached to `window` previously in your app bundle. Use them to hide, replace or extend your customizable components:
 
 ```tsx
-import * as React from "react";
-import { SFC } from "react";
+import * as React from 'react';
+import { SFC } from 'react';
 
 const { replace } = window.__ANNEX_REGISTRY__;
 
 const ProfessionalGreeting: SFC<{ name: string }> = ({ name }) => (
-  <p>
-    Hello {name}, welcome to our app. Please let us know if there's anything we
-    can do to help.
-  </p>
+	<p>
+		Hello {name}, welcome to our app. Please let us know if there's anything we
+		can do to help.
+	</p>
 );
 
-replace("greeting", ProfessionalGreeting);
+replace('greeting', ProfessionalGreeting);
 ```
 
 Build the customization bundle and embed it in your HTML **after** your main application bundle.
