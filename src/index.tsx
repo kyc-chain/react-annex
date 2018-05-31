@@ -1,14 +1,10 @@
 import * as React from 'react';
-import { ComponentClass, SFC } from 'react';
 
-type ExtensionRegistry = {
+export interface IExtensionRegistry {
 	componentIndex: {
-		[key: string]: ComponentClass | SFC;
+		[key: string]: React.ComponentClass | React.SFC;
 	};
-	knownExtensionPoints: {
-		[key: string]: boolean;
-	};
-};
+}
 
 const defaultRegistry = {
 	componentIndex: {},
@@ -17,13 +13,47 @@ const defaultRegistry = {
 
 export const AnnexContext = React.createContext(defaultRegistry);
 
-const Blank: SFC<{}> = () => null;
+const Blank: React.SFC<{}> = () => null;
 
-export const initRegistry = (index?: ExtensionRegistry) => {
-	const selectedRegistry: ExtensionRegistry = index || defaultRegistry;
+export const initRegistry = (index?: IExtensionRegistry) => {
+	const selectedRegistry: IExtensionRegistry = index || defaultRegistry;
 
 	const registry = {
-		replace: (key: string, RegisteredComponent: ComponentClass | SFC) => {
+		append: (
+			key: string,
+			RegisteredComponent: React.ComponentClass | React.SFC
+		) => {
+			registry.replace(key, (props: any) => {
+				const { DefaultContent } = props;
+				return (
+					<>
+						<DefaultContent {...props} />
+						<RegisteredComponent {...props} />
+					</>
+				);
+			});
+		},
+		hide: (key: string) => {
+			registry.replace(key, Blank);
+		},
+		prepend: (
+			key: string,
+			RegisteredComponent: React.ComponentClass | React.SFC
+		) => {
+			registry.replace(key, (props: any) => {
+				const { DefaultContent } = props;
+				return (
+					<>
+						<RegisteredComponent {...props} />
+						<DefaultContent {...props} />
+					</>
+				);
+			});
+		},
+		replace: (
+			key: string,
+			RegisteredComponent: React.ComponentClass | React.SFC
+		) => {
 			if (selectedRegistry.componentIndex[key]) {
 				throw new Error(
 					`Component already registered for target "${key}", cannot register multiple components for the same extension point in the same extension registry.`
@@ -31,31 +61,6 @@ export const initRegistry = (index?: ExtensionRegistry) => {
 			}
 
 			selectedRegistry.componentIndex[key] = RegisteredComponent;
-		},
-		hide: (key: string) => {
-			registry.replace(key, Blank);
-		},
-		prepend: (key: string, RegisteredComponent: ComponentClass | SFC) => {
-			registry.replace(key, (props: any) => {
-				const { DefaultContent } = props;
-				return (
-					<>
-						<RegisteredComponent {...props} />
-						<DefaultContent {...props} />
-					</>
-				);
-			});
-		},
-		append: (key: string, RegisteredComponent: ComponentClass | SFC) => {
-			registry.replace(key, (props: any) => {
-				const { DefaultContent } = props;
-				return (
-					<>
-						<DefaultContent {...props} />
-						<RegisteredComponent {...props} />
-					</>
-				);
-			});
 		}
 	};
 
@@ -63,9 +68,9 @@ export const initRegistry = (index?: ExtensionRegistry) => {
 };
 
 export const register = (key: string) => {
-	return (DefaultContent: ComponentClass | SFC) => (props: any) => (
+	return (DefaultContent: React.ComponentClass | React.SFC) => (props: any) => (
 		<AnnexContext.Consumer>
-			{(registry: ExtensionRegistry) => {
+			{(registry: IExtensionRegistry) => {
 				if (!registry.componentIndex[key]) {
 					return <DefaultContent {...props} />;
 				}
