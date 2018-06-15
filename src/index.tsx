@@ -10,7 +10,7 @@ const defaultRegistry = {
 	knownExtensionPoints: {}
 };
 
-export const AnnexContext = React.createContext(defaultRegistry);
+export const AnnexContext: React.Context<any> = React.createContext(defaultRegistry);
 
 const Blank: React.SFC<{}> = () => null;
 

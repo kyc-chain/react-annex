@@ -78,9 +78,9 @@ When the application runs, the custom greeting (`ProfessionalGreeting`) will ren
 The `register` function takes a string identifier and returns a higher-order component which receives the default component. Note that it receives the default component as a callable SFC or class constructor, not as a JSX element.
 
 ```tsx
-const CustomizableText = () => <p>Customizable text!</p>;
+const DefaultText = () => <p>This text is customizable!</p>;
 
-register('customizable-text')(CustomizableText);
+export const CustomizableText = register('customizable-text')(DefaultText);
 ```
 
 ### `initRegistry`
@@ -91,6 +91,8 @@ Creates a registry object. Optionally can receive an existing registry object in
 
 ```tsx
 // In the main app bundle:
+import { AnnexContent, initRegistry } from 'react-annex';
+
 window.__ANNEX_REGISTRY__ = initRegistry();
 
 ReactDOM.render(
@@ -109,7 +111,7 @@ const { append, hide, prepend, replace } = window.__ANNEX_REGISTRY__;
 
 **Advanced usage:**
 
-In this example, two instances of the app will be rendered. The first instance won't render the "welcome" component.
+In this example, two instances of the app will be rendered. The first instance won't render the "welcome" component. This approach is not recommended for production use.
 
 ```tsx
 const registryObject1 = { componentIndex: {} };
@@ -276,7 +278,7 @@ replace('math', MathFormatter);
 //   We did math with 12 and 3!
 ```
 
-The main advantage of this approach is our customization will still work without modification, even if the implementation of the Math component changes in the main app bundle.
+The main advantage of this approach is our customization will still work without modification, even if the implementation of the `Math` component changes in the main app bundle.
 
 # Development & Contribution
 
