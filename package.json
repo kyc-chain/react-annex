@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"description":
 		"A customisation framework designed to allow for runtime extension of React applications.",
-	"main": "build/lib/index.ts",
+	"main": "build/lib/index.js",
 	"types": "build/lib/index.d.ts",
 	"scripts": {
 		"start": "start-storybook -p 6006",
